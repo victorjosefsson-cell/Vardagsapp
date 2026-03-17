@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Vardagsappen">
+<title>Vardagsappen</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#ffffff;--bg2:#f5f5f3;--bg3:#eeede9;
+  --text:#111;--text2:#555;--text3:#aaa;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.18);
+  --r:10px;--rl:14px;
+  --green:#3B6D11;--green-bg:#EAF3DE;
+  --red:#A32D2D;--red-bg:#FCEBEB;
+  --amber:#854F0B;--amber-bg:#FAEEDA;
+  --blue:#185FA5;--blue-bg:#E6F1FB;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#000;
+    --text:#f2f2f7;--text2:#aeaeb2;--text3:#636366;
+    --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
+    --green:#C0DD97;--green-bg:#173404;
+    --red:#F7C1C1;--red-bg:#501313;
+    --amber:#FAC775;--amber-bg:#412402;
+    --blue:#85B7EB;--blue-bg:#042C53;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+.header{background:var(--bg);border-bottom:0.5px solid var(--border);padding:14px 18px calc(14px + 0px);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-left h1{font-size:17px;font-weight:700}
+.header-left p{font-size:12px;color:var(--text3);margin-top:2px}
+.settings-btn{background:none;border:0.5px solid var(--border2);cursor:pointer;padding:8px 13px;border-radius:var(--r);color:var(--text2);font-size:13px;font-family:inherit;font-weight:500}
+
+.container{max-width:600px;margin:0 auto;padding:14px 14px calc(32px + var(--safe-bottom))}
+
+.tabs{display:flex;gap:4px;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:14px}
+.tab{flex:1;padding:9px 4px;border:none;border-radius:9px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;background:transparent;color:var(--text3);transition:all .15s}
+.tab.active{background:var(--bg);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+
+.section{display:none}.section.active{display:block}
+
+.scores{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.score-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px 8px;text-align:center}
+.score-label{font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.score-val{font-size:30px;font-weight:800;line-height:1}
+.score-badge{font-size:10px;margin-top:5px;padding:2px 8px;border-radius:10px;display:inline-block;font-weight:700}
+
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:15px 16px;margin-bottom:12px}
+.card-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:11px}
+
+.cta{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.cta-text h3{font-size:14px;font-weight:600}
+.cta-text p{font-size:12px;margin-top:2px;opacity:.75}
+.cta-btn{flex-shrink:0;border:none;border-radius:var(--r);padding:9px 15px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600}
+
+.sleep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sleep-cell{background:var(--bg2);border-radius:9px;padding:10px 8px;text-align:center}
+.sleep-cell-label{font-size:10px;color:var(--text3);margin-bottom:4px}
+.sleep-cell-val{font-size:13px;font-weight:700}
+
+.bar-chart{display:flex;gap:5px;align-items:flex-end;height:80px;margin-top:6px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bar-num{font-size:10px;font-weight:700}
+.bar{width:100%;border-radius:4px 4px 3px 3px;transition:height .3s}
+.bar-day{font-size:9px;color:var(--text3)}
+
+.event-row{display:flex;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border);align-items:flex-start}
+.event-row:last-child{border-bottom:none;padding-bottom:0}
+.event-time{font-size:11px;color:var(--blue);min-width:90px;flex-shrink:0;margin-top:2px;font-weight:600}
+.event-title{font-size:14px;font-weight:500;flex:1;line-height:1.3}
+.event-cal{font-size:11px;color:var(--text3);margin-top:2px}
+
+.day-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+
+.no-data{text-align:center;padding:28px;color:var(--text3);font-size:14px;line-height:1.5}
+
+.snooze{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.snooze-stat{flex:1;min-width:110px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:12px 13px}
+.snooze-stat-label{font-size:10px;color:var(--text3);margin-bottom:4px}
+.snooze-stat-val{font-size:16px;font-weight:700}
+
+.refresh-btn{width:100%;padding:12px;border:0.5px solid var(--border);border-radius:var(--rl);background:var(--bg);font-size:14px;cursor:pointer;color:var(--text2);font-family:inherit;margin-top:4px}
+
+/* Settings sheet */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.sheet-overlay.open{display:flex}
+.sheet{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:20px 20px calc(28px + var(--safe-bottom));max-height:92vh;overflow-y:auto}
+.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:4px;margin:0 auto 20px}
+.sheet-title{font-size:17px;font-weight:700;margin-bottom:18px}
+.sheet-section{margin-bottom:22px}
+.sheet-section-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.sheet-section-sub{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:9px}
+.sheet-input{width:100%;padding:12px 13px;border:0.5px solid var(--border2);border-radius:var(--r);font-size:14px;font-family:inherit;background:var(--bg);color:var(--text)}
+.sheet-input:focus{outline:2px solid rgba(100,100,100,.2)}
+.sheet-status{font-size:11px;font-weight:600;margin-top:6px}
+.sheet-info{background:var(--bg2);border-radius:var(--r);padding:13px 14px}
+.sheet-save{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;cursor:pointer;font-family:inherit;font-weight:700;margin-bottom:10px}
+.sheet-close{width:100%;padding:12px;background:transparent;color:var(--text3);border:none;font-size:14px;cursor:pointer;font-family:inherit}
+
+/* Spinner */
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--text2);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-center{text-align:center;padding:48px;color:var(--text3);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:12px}
+
+.error-card{background:var(--red-bg);border:0.5px solid rgba(163,45,45,.2);border-radius:var(--rl);padding:15px 16px;margin-bottom:12px}
+.error-card p{color:var(--red);font-size:13px;line-height:1.5}
+.error-card button{margin-top:10px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1 id="greeting">God dag 👋</h1>
+    <p id="today-date"></p>
+  </div>
+  <button class="settings-btn" onclick="openSettings()">⚙ Inställningar</button>
+</div>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('overview',this)">Översikt</button>
+    <button class="tab" onclick="showTab('health',this)">Hälsa</button>
+    <button class="tab" onclick="showTab('calendar',this)">Kalender</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="tab-overview" class="section active">
+    <div class="scores" id="scores-overview"></div>
+    <div id="oura-cta-overview"></div>
+    <div class="card" id="sleep-overview-card" style="display:none">
+      <div class="card-label">Sömndetaljer – senaste natten</div>
+      <div class="sleep-grid" id="sleep-overview-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Idag</div>
+      <div id="today-events"></div>
+    </div>
+  </div>
+
+  <!-- HEALTH -->
+  <div id="tab-health" class="section">
+    <div id="health-content"></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="tab-calendar" class="section">
+    <div id="calendar-content"></div>
+  </div>
+</div>
+
+<!-- Settings sheet -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="maybeClose(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Inställningar</div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">💍 Oura API-nyckel</div>
+      <div class="sheet-section-sub">
+        Skapa ett personligt token på
+        <a href="https://cloud.ouraring.com/personal-access-tokens" target="_blank" style="color:var(--blue)">cloud.ouraring.com</a>
+        och klistra in det nedan.
+      </div>
+      <input type="password" class="sheet-input" id="oura-input" placeholder="Klistra in token här...">
+      <div class="sheet-status" id="oura-status"></div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">📅 Kalender (ICS-länk)</div>
+      <div class="sheet-section-sub">
+        Klistra in en offentlig ICS-länk från Google Kalender eller Outlook så hämtas händelser automatiskt.
+        <br><br>
+        <strong>Google:</strong> Kalenderinställningar → Integrering → Hemlig adress i iCal-format<br>
+        <strong>Outlook:</strong> Kalenderinställningar → Dela kalender → ICS-länk
+      </div>
+      <input type="url" class="sheet-input" id="ics-input" placeholder="https://calendar.google.com/calendar/ical/...">
+      <div class="sheet-status" id="ics-status"></div>
+    </div>
+
+    <button class="sheet-save" id="sheet-save-btn" onclick="saveSettings()">Spara & hämta data</button>
+    <button class="sheet-close" onclick="closeSettings()">Stäng</button>
+  </div>
+</div>
+
+<script>
+var OURA_API = 'https://api.ouraring.com/v2/usercollection';
+var ICS_PROXY = 'https://api.allorigins.win/raw?url=';
+
+var state = {
+  ouraToken: localStorage.getItem('oura_token') || '',
+  icsUrl: localStorage.getItem('ics_url') || '',
+  ouraData: null,
+  calEvents: [],
+  loading: { oura: false, cal: false },
+};
+
+var todayStr = new Date().toISOString().split('T')[0];
+var weekAgoStr = new Date(Date.now() - 6*864e5).toISOString().split('T')[0];
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(function init() {
+  var h = new Date().getHours();
+  var greet = h < 5 ? 'God natt' : h < 10 ? 'God morgon' : h < 18 ? 'God dag' : 'God kväll';
+  document.getElementById('greeting').textContent = greet + ' 👋';
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+  render();
+  if (state.ouraToken) fetchOura();
+  if (state.icsUrl) fetchCal();
+})();
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  render();
+}
+
+// ── Oura ──────────────────────────────────────────────────────────────────────
+async function fetchOura() {
+  if (!state.ouraToken) return;
+  state.loading.oura = true; render();
+  try {
+    var h = { Authorization: 'Bearer ' + state.ouraToken };
+    var p = '?start_date=' + weekAgoStr + '&end_date=' + todayStr;
+    var [r, s, a] = await Promise.all([
+      fetch(OURA_API + '/daily_readiness' + p, { headers: h }),
+      fetch(OURA_API + '/daily_sleep' + p, { headers: h }),
+      fetch(OURA_API + '/daily_activity' + p, { headers: h }),
+    ]);
+    if (r.status === 401) throw new Error('auth');
+    var [rd, sd, ad] = await Promise.all([r.json(), s.json(), a.json()]);
+    state.ouraData = { readiness: rd.data||[], sleep: sd.data||[], activity: ad.data||[], error: null };
+  } catch(e) {
+    state.ouraData = { error: e.message === 'auth' ? 'Ogiltig API-nyckel – kontrollera token i inställningarna.' : 'Kunde inte nå Oura API. Kontrollera internetanslutning.' };
+  }
+  state.loading.oura = false; render();
+}
+
+// ── Calendar (ICS) ────────────────────────────────────────────────────────────
+async function fetchCal() {
+  if (!state.icsUrl) return;
+  state.loading.cal = true; render();
+  try {
+    var url = ICS_PROXY + encodeURIComponent(state.icsUrl);
+    var res = await fetch(url);
+    var text = await res.text();
+    state.calEvents = parseICS(text);
+    state.calError = null;
+  } catch {
+    state.calError = 'Kunde inte hämta kalender. Kontrollera ICS-länken.';
+    state.calEvents = [];
+  }
+  state.loading.cal = false; render();
+}
+
+function parseICS(text) {
+  var events = [];
+  var blocks = text.split('BEGIN:VEVENT');
+  blocks.shift();
+  var nowMs = Date.now();
+  var endMs = nowMs + 4 * 24 * 3600 * 1000;
+  blocks.forEach(function(block) {
+    try {
+      var get = function(key) {
+        var m = block.match(new RegExp(key + '[^:]*:([^\r\n]+)'));
+        return m ? m[1].trim() : '';
+      };
+      var parseDate = function(raw) {
+        if (!raw) return null;
+        raw = raw.replace(/[^0-9T]/g,'');
+        if (raw.length === 8) return new Date(raw.slice(0,4)+'-'+raw.slice(4,6)+'-'+raw.slice(6,8)+'T00:00:00');
+        if (raw.length >= 15) return new Date(raw.slice(0,4)+'-'+raw.slice(4,6)+'-'+raw.slice(6,8)+'T'+raw.slice(9,11)+':'+raw.slice(11,13)+':'+raw.slice(13,15)+'Z');
+        return null;
+      };
+      var summary = (get('SUMMARY')||'').replace(/\\n/g,' ').replace(/\\/g,'');
+      var dtStart = parseDate(get('DTSTART'));
+      var dtEnd = parseDate(get('DTEND'));
+      if (!dtStart || !summary) return;
+      var ms = dtStart.getTime();
+      if (ms < nowMs - 3600000 || ms > endMs) return;
+      events.push({
+        title: summary,
+        date: dtStart.toLocaleDateString('sv-SE', { year:'numeric',month:'2-digit',day:'2-digit' }).split('/').reverse().join('-').replace(/\./g,'-').split(' ')[0],
+        dateObj: dtStart,
+        start: dtStart.toLocaleTimeString('sv-SE', { hour:'2-digit', minute:'2-digit' }),
+        end: dtEnd ? dtEnd.toLocaleTimeString('sv-SE', { hour:'2-digit', minute:'2-digit' }) : '',
+        allDay: !get('DTSTART').includes('T'),
+      });
+    } catch {}
+  });
+  events.sort(function(a,b){ return a.dateObj - b.dateObj; });
+  return events;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function fmtSecs(s) {
+  var h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
+  return h + 'h ' + m + 'm';
+}
+function scoreColor(s) { return s>=85?'var(--green)':s>=70?'var(--amber)':'var(--red)'; }
+function scoreBg(s) { return s>=85?'var(--green-bg)':s>=70?'var(--amber-bg)':'var(--red-bg)'; }
+function scoreLabel(s) { return s>=85?'Optimal':s>=70?'Bra':s>=60?'Okej':'Låg'; }
+
+function latestScore(arr, key) {
+  if (!arr || !arr.length) return null;
+  return arr[arr.length-1][key];
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  renderScores();
+  renderOverviewCta();
+  renderSleepOverview();
+  renderTodayEvents();
+  renderHealth();
+  renderCalendar();
+}
+
+function renderScores() {
+  var metrics = [
+    { label: 'Återhämtning', val: state.ouraData && !state.ouraData.error ? latestScore(state.ouraData.readiness,'score') : null },
+    { label: 'Sömn', val: state.ouraData && !state.ouraData.error ? latestScore(state.ouraData.sleep,'score') : null },
+    { label: 'Aktivitet', val: state.ouraData && !state.ouraData.error ? latestScore(state.ouraData.activity,'score') : null },
+  ];
+  document.getElementById('scores-overview').innerHTML = metrics.map(function(m) {
+    var inner = state.loading.oura
+      ? '<div class="score-val" style="color:var(--text3)">—</div>'
+      : m.val != null
+        ? '<div class="score-val" style="color:'+scoreColor(m.val)+'">'+m.val+'</div><div class="score-badge" style="background:'+scoreBg(m.val)+';color:'+scoreColor(m.val)+'">'+scoreLabel(m.val)+'</div>'
+        : '<div style="font-size:11px;color:var(--text3);margin-top:4px">Ej kopplad</div>';
+    return '<div class="score-card"><div class="score-label">'+m.label+'</div>'+inner+'</div>';
+  }).join('');
+}
+
+function renderOverviewCta() {
+  var el = document.getElementById('oura-cta-overview');
+  if (state.ouraToken) { el.innerHTML=''; return; }
+  el.innerHTML = '<div class="card" style="background:var(--amber-bg);border-color:rgba(133,79,11,.15)"><div class="cta"><div class="cta-text" style="color:var(--amber)"><h3>Koppla Oura Ring</h3><p>Sömn, återhämtning & aktivitet</p></div><button class="cta-btn" style="background:var(--amber);color:#fff" onclick="openSettings()">Koppla →</button></div></div>';
+}
+
+function renderSleepOverview() {
+  var sleep = state.ouraData && !state.ouraData.error ? state.ouraData.sleep : null;
+  var latest = sleep && sleep.length ? sleep[sleep.length-1] : null;
+  var card = document.getElementById('sleep-overview-card');
+  if (!latest) { card.style.display='none'; return; }
+  card.style.display='block';
+  document.getElementById('sleep-overview-grid').innerHTML = [
+    { label:'Total', val: fmtSecs(latest.total_sleep_duration||0) },
+    { label:'Djupsömn', val: fmtSecs(latest.deep_sleep_duration||0) },
+    { label:'REM', val: fmtSecs(latest.rem_sleep_duration||0) },
+  ].map(function(c){ return '<div class="sleep-cell"><div class="sleep-cell-label">'+c.label+'</div><div class="sleep-cell-val">'+c.val+'</div></div>'; }).join('');
+}
+
+function renderTodayEvents() {
+  var el = document.getElementById('today-events');
+  if (state.loading.cal) { el.innerHTML='<div style="color:var(--text3);font-size:13px">Hämtar kalender...</div>'; return; }
+  if (state.calError) { el.innerHTML='<div style="color:var(--red);font-size:12px">'+state.calError+'</div>'; return; }
+  if (!state.icsUrl) { el.innerHTML='<div style="color:var(--text3);font-size:13px">Koppla en kalender i inställningarna</div>'; return; }
+  var today = state.calEvents.filter(function(e){ return e.date===todayStr; });
+  if (!today.length) { el.innerHTML='<div style="color:var(--text3);font-size:13px">Inga händelser idag</div>'; return; }
+  el.innerHTML = today.map(function(e,i){ return eventRow(e, i===today.length-1); }).join('');
+}
+
+function eventRow(e, last) {
+  return '<div class="event-row" style="'+(last?'border-bottom:none;padding-bottom:0':'')+'">'+
+    '<div class="event-time">'+(e.allDay?'Heldag':e.start+(e.end?' – '+e.end:''))+'</div>'+
+    '<div class="event-title">'+e.title+'</div></div>';
+}
+
+function renderHealth() {
+  var el = document.getElementById('health-content');
+  if (!state.ouraToken) {
+    el.innerHTML = '<div class="card" style="text-align:center;padding:40px 16px"><div style="font-size:40px;margin-bottom:12px">💍</div><div style="font-size:16px;font-weight:700;margin-bottom:8px">Koppla Oura Ring</div><div style="font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.6">Hämta ett personligt API-token på<br><a href="https://cloud.ouraring.com/personal-access-tokens" target="_blank" style="color:var(--blue)">cloud.ouraring.com</a></div><button onclick="openSettings()" style="background:var(--text);color:var(--bg);border:none;border-radius:10px;padding:12px 24px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:700">Öppna inställningar</button></div>';
+    return;
+  }
+  if (state.loading.oura) {
+    el.innerHTML = '<div class="loading-center"><div class="spinner"></div><span>Hämtar Oura-data...</span></div>';
+    return;
+  }
+  if (!state.ouraData || state.ouraData.error) {
+    el.innerHTML = '<div class="error-card"><p>'+(state.ouraData ? state.ouraData.error : 'Ingen data')+'</p><button onclick="fetchOura()">Försök igen</button></div>';
+    return;
+  }
+  var html = '';
+  var charts = [
+    { label:'Återhämtningspoäng – 7 dagar', data:state.ouraData.readiness, color:'var(--green)', bg:'var(--green-bg)' },
+    { label:'Sömnpoäng – 7 dagar', data:state.ouraData.sleep, color:'var(--blue)', bg:'var(--blue-bg)' },
+    { label:'Aktivitetspoäng – 7 dagar', data:state.ouraData.activity, color:'var(--amber)', bg:'var(--amber-bg)' },
+  ];
+  charts.forEach(function(c) {
+    var vals = c.data.map(function(d){ return d.score||0; });
+    var days = c.data.map(function(d){ return d.day ? new Date(d.day+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'short'}) : ''; });
+    var max = Math.max.apply(null, vals.concat([1]));
+    var avg = vals.length ? Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length) : 0;
+    html += '<div class="card">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    html += '<div class="card-label" style="margin-bottom:0">'+c.label+'</div>';
+    html += '<div style="font-size:11px;color:'+c.color+';font-weight:700;background:'+c.bg+';padding:3px 9px;border-radius:10px">Snitt '+avg+'</div>';
+    html += '</div>';
+    html += '<div class="bar-chart">';
+    vals.forEach(function(v,i) {
+      var h = Math.max(Math.round((v/max)*52),4);
+      html += '<div class="bar-col"><div class="bar-num" style="color:'+c.color+'">'+v+'</div><div class="bar" style="height:'+h+'px;background:'+c.bg+'"></div><div class="bar-day">'+days[i]+'</div></div>';
+    });
+    html += '</div></div>';
+  });
+  // Sleep detail
+  var sl = state.ouraData.sleep;
+  if (sl && sl.length) {
+    var lat = sl[sl.length-1];
+    html += '<div class="card"><div class="card-label">Sömn i detalj – senaste natten</div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+    [
+      { label:'Total sömn', val:fmtSecs(lat.total_sleep_duration||0) },
+      { label:'Djupsömn', val:fmtSecs(lat.deep_sleep_duration||0) },
+      { label:'REM-sömn', val:fmtSecs(lat.rem_sleep_duration||0) },
+      { label:'Effektivitet', val:lat.efficiency!=null?lat.efficiency+'%':'—' },
+    ].forEach(function(c) {
+      html += '<div style="background:var(--bg2);border-radius:10px;padding:12px 13px"><div style="font-size:10px;color:var(--text3);margin-bottom:4px">'+c.label+'</div><div style="font-size:17px;font-weight:700">'+c.val+'</div></div>';
+    });
+    html += '</div></div>';
+  }
+  html += '<button class="refresh-btn" onclick="fetchOura()">Uppdatera ↻</button>';
+  el.innerHTML = html;
+}
+
+function renderCalendar() {
+  var el = document.getElementById('calendar-content');
+  if (!state.icsUrl) {
+    el.innerHTML = '<div class="card" style="text-align:center;padding:40px 16px"><div style="font-size:40px;margin-bottom:12px">📅</div><div style="font-size:16px;font-weight:700;margin-bottom:8px">Koppla kalender</div><div style="font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.6">Klistra in en ICS-länk från<br>Google Kalender eller Outlook</div><button onclick="openSettings()" style="background:var(--text);color:var(--bg);border:none;border-radius:10px;padding:12px 24px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:700">Öppna inställningar</button></div>';
+    return;
+  }
+  if (state.loading.cal) {
+    el.innerHTML = '<div class="loading-center"><div class="spinner"></div><span>Hämtar kalender...</span></div>';
+    return;
+  }
+  if (state.calError) {
+    el.innerHTML = '<div class="error-card"><p>'+state.calError+'</p><button onclick="fetchCal()">Försök igen</button></div>';
+    return;
+  }
+  var events = state.calEvents;
+  if (!events.length) {
+    el.innerHTML = '<div class="card"><div class="no-data">Inga kommande händelser</div></div>';
+  } else {
+    var dates = [];
+    events.forEach(function(e){ if(dates.indexOf(e.date)<0) dates.push(e.date); });
+    dates.sort();
+    var html = '';
+    dates.forEach(function(date) {
+      var isToday = date === todayStr;
+      var evs = events.filter(function(e){ return e.date===date; });
+      var d = new Date(date+'T12:00:00');
+      var label = isToday ? 'Idag' : d.toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'});
+      html += '<div class="card"><div class="day-label" style="color:'+(isToday?'var(--blue)':'var(--text3)')+'">'+label+'</div>';
+      evs.forEach(function(e,i){ html += eventRow(e, i===evs.length-1); });
+      html += '</div>';
+    });
+    html += '<button class="refresh-btn" onclick="fetchCal()">Uppdatera ↻</button>';
+    el.innerHTML = html;
+  }
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function openSettings() {
+  document.getElementById('oura-input').value = state.ouraToken;
+  document.getElementById('ics-input').value = state.icsUrl;
+  document.getElementById('oura-status').textContent = state.ouraToken ? '✓ Oura kopplad' : '';
+  document.getElementById('oura-status').style.color = 'var(--green)';
+  document.getElementById('ics-status').textContent = state.icsUrl ? '✓ Kalender sparad' : '';
+  document.getElementById('ics-status').style.color = 'var(--green)';
+  document.getElementById('sheet-overlay').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('sheet-overlay').classList.remove('open');
+}
+function maybeClose(e) {
+  if (e.target === document.getElementById('sheet-overlay')) closeSettings();
+}
+function saveSettings() {
+  var newToken = document.getElementById('oura-input').value.trim();
+  var newIcs = document.getElementById('ics-input').value.trim();
+  var changed = { oura: newToken !== state.ouraToken, ics: newIcs !== state.icsUrl };
+  state.ouraToken = newToken;
+  state.icsUrl = newIcs;
+  localStorage.setItem('oura_token', newToken);
+  localStorage.setItem('ics_url', newIcs);
+  closeSettings();
+  if (changed.oura && newToken) fetchOura();
+  if (changed.ics && newIcs) fetchCal();
+  render();
+}
+</script>
+</body>
+</html>
