@@ -1,6 +1,6 @@
 // Service worker for Vardagsappen — caches the app shell for offline use.
 // Bump CACHE when shell files change to force an update.
-var CACHE = 'vardag-v1';
+var CACHE = 'vardag-v2';
 var SHELL = [
   './',
   './index.html',
