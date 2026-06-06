@@ -112,6 +112,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .error-card{background:var(--red-bg);border:0.5px solid rgba(163,45,45,.2);border-radius:var(--rl);padding:15px 16px;margin-bottom:12px}
 .error-card p{color:var(--red);font-size:13px;line-height:1.5}
 .error-card button{margin-top:10px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600}
+
+/* Training */
+.reco-card{border-radius:var(--rl);padding:16px 17px;margin-bottom:12px;border:0.5px solid var(--border)}
+.reco-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.reco-emoji{font-size:34px;line-height:1}
+.reco-head{flex:1}
+.reco-kicker{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;opacity:.7}
+.reco-title{font-size:19px;font-weight:800;line-height:1.15;margin-top:1px}
+.reco-body{font-size:13px;line-height:1.5;opacity:.9}
+.reco-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.reco-chip{font-size:11px;font-weight:600;padding:5px 10px;border-radius:9px;background:rgba(0,0,0,.05)}
+@media(prefers-color-scheme:dark){.reco-chip{background:rgba(255,255,255,.08)}}
+.reco-slot{display:flex;align-items:center;gap:10px;margin-top:12px;padding:11px 12px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--r)}
+.reco-slot-icon{font-size:18px}
+.reco-slot-txt{flex:1;font-size:13px;line-height:1.35}
+.reco-slot-txt b{font-weight:700}
+
+.suggest-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.suggest{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:12px 13px;cursor:pointer;text-align:left;font-family:inherit;color:var(--text);transition:transform .1s}
+.suggest:active{transform:scale(.97)}
+.suggest-emoji{font-size:20px}
+.suggest-name{font-size:13px;font-weight:700;margin-top:6px}
+.suggest-desc{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.35}
+
+.log-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:0.5px solid var(--border)}
+.log-row:last-child{border-bottom:none;padding-bottom:0}
+.log-emoji{font-size:22px;width:30px;text-align:center}
+.log-main{flex:1;min-width:0}
+.log-name{font-size:14px;font-weight:600}
+.log-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.log-del{background:none;border:none;color:var(--text3);font-size:17px;cursor:pointer;padding:4px 6px;font-family:inherit;flex-shrink:0}
+
+.week-strip{display:flex;gap:5px;margin-top:4px}
+.week-day{flex:1;text-align:center}
+.week-dot{height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--bg2);border:0.5px solid var(--border)}
+.week-dot.done{background:var(--green-bg);border-color:transparent}
+.week-dot.today{outline:2px solid var(--blue)}
+.week-dname{font-size:9px;color:var(--text3);margin-top:4px}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.field-label{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin:14px 0 7px}
+.chip-row{display:flex;gap:7px;flex-wrap:wrap}
+.chip-opt{padding:9px 13px;border:0.5px solid var(--border2);border-radius:9px;background:var(--bg);font-size:13px;font-family:inherit;color:var(--text);cursor:pointer;font-weight:600}
+.chip-opt.sel{background:var(--text);color:var(--bg);border-color:var(--text)}
 </style>
 </head>
 <body>
@@ -127,6 +172,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="container">
   <div class="tabs">
     <button class="tab active" onclick="showTab('overview',this)">Översikt</button>
+    <button class="tab" onclick="showTab('training',this)">Träning</button>
     <button class="tab" onclick="showTab('health',this)">Hälsa</button>
     <button class="tab" onclick="showTab('calendar',this)">Kalender</button>
   </div>
@@ -135,6 +181,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div id="tab-overview" class="section active">
     <div class="scores" id="scores-overview"></div>
     <div id="oura-cta-overview"></div>
+    <div id="training-reco-overview"></div>
     <div class="card" id="sleep-overview-card" style="display:none">
       <div class="card-label">Sömndetaljer – senaste natten</div>
       <div class="sleep-grid" id="sleep-overview-grid"></div>
@@ -145,6 +192,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <!-- TRAINING -->
+  <div id="tab-training" class="section">
+    <div id="training-content"></div>
+  </div>
+
   <!-- HEALTH -->
   <div id="tab-health" class="section">
     <div id="health-content"></div>
@@ -153,6 +205,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- CALENDAR -->
   <div id="tab-calendar" class="section">
     <div id="calendar-content"></div>
+  </div>
+</div>
+
+<!-- Log workout sheet -->
+<div class="modal-overlay" id="log-overlay" onclick="maybeCloseLog(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="log-title">Logga träning</div>
+
+    <div class="field-label">Typ av pass</div>
+    <div class="chip-row" id="log-types"></div>
+
+    <div class="field-label">Längd</div>
+    <div class="chip-row" id="log-durations"></div>
+
+    <div class="field-label">Hur kändes det?</div>
+    <div class="chip-row" id="log-feels"></div>
+
+    <div class="field-label">Anteckning (valfritt)</div>
+    <input type="text" class="sheet-input" id="log-note" placeholder="T.ex. 5×400m intervaller">
+
+    <button class="sheet-save" id="log-save-btn" style="margin-top:20px" onclick="confirmLog()">Spara pass</button>
+    <button class="sheet-close" onclick="closeLog()">Avbryt</button>
   </div>
 </div>
 
@@ -199,8 +274,17 @@ var state = {
   icsUrl: localStorage.getItem('ics_url') || '',
   ouraData: null,
   calEvents: [],
+  workouts: loadWorkouts(),
   loading: { oura: false, cal: false },
 };
+
+function loadWorkouts() {
+  try { return JSON.parse(localStorage.getItem('workouts') || '[]'); }
+  catch { return []; }
+}
+function saveWorkouts() {
+  localStorage.setItem('workouts', JSON.stringify(state.workouts));
+}
 
 var todayStr = new Date().toISOString().split('T')[0];
 var weekAgoStr = new Date(Date.now() - 6*864e5).toISOString().split('T')[0];
@@ -320,8 +404,10 @@ function latestScore(arr, key) {
 function render() {
   renderScores();
   renderOverviewCta();
+  renderTrainingReco('training-reco-overview', true);
   renderSleepOverview();
   renderTodayEvents();
+  renderTraining();
   renderHealth();
   renderCalendar();
 }
@@ -468,6 +554,283 @@ function renderCalendar() {
     html += '<button class="refresh-btn" onclick="fetchCal()">Uppdatera ↻</button>';
     el.innerHTML = html;
   }
+}
+
+// ── Training ──────────────────────────────────────────────────────────────────
+var WORKOUT_TYPES = {
+  run:      { name:'Löpning',     emoji:'🏃' },
+  strength: { name:'Styrka',      emoji:'🏋️' },
+  hiit:     { name:'Intervaller', emoji:'⚡' },
+  bike:     { name:'Cykling',     emoji:'🚴' },
+  swim:     { name:'Simning',     emoji:'🏊' },
+  walk:     { name:'Promenad',    emoji:'🚶' },
+  yoga:     { name:'Yoga',        emoji:'🧘' },
+  mobility: { name:'Rörlighet',   emoji:'🤸' },
+  rest:     { name:'Vila',        emoji:'😴' },
+  other:    { name:'Annat',       emoji:'⭐' },
+};
+var DURATIONS = [15, 30, 45, 60, 90];
+var FEELS = [
+  { id:'easy',  label:'Lätt 😌' },
+  { id:'good',  label:'Bra 🙂' },
+  { id:'hard',  label:'Tufft 😮‍💨' },
+  { id:'spent', label:'Slut 🥵' },
+];
+
+function dayOffsetStr(n) {
+  return new Date(Date.now() + n*864e5).toISOString().split('T')[0];
+}
+
+// Did I train on a given day? (any non-rest logged workout)
+function trainedOn(dateStr) {
+  return state.workouts.some(function(w){ return w.date===dateStr && w.type!=='rest'; });
+}
+
+// Consecutive training days ending today (or yesterday if not trained today yet)
+function consecutiveTrainingDays() {
+  var n = 0, i = trainedOn(todayStr) ? 0 : 1;
+  while (trainedOn(dayOffsetStr(-i))) { n++; i++; }
+  return n;
+}
+
+// Core engine: combine Oura readiness + sleep + recent load into a recommendation
+function trainingPlan() {
+  var od = state.ouraData;
+  if (!od || od.error) {
+    return { level:0, emoji:'🎯', title:'Planera din träning',
+      body:'Koppla din Oura Ring för smarta rekommendationer baserat på din återhämtning.',
+      color:'var(--text2)', bg:'var(--bg2)', suggest:['run','strength','walk','yoga'], chips:[] };
+  }
+  var readiness = latestScore(od.readiness, 'score');
+  var sleep = latestScore(od.sleep, 'score');
+  var streak = consecutiveTrainingDays();
+
+  var level;
+  if (readiness == null) level = 0;
+  else if (readiness >= 85) level = 4;
+  else if (readiness >= 70) level = 3;
+  else if (readiness >= 60) level = 2;
+  else level = 1;
+
+  var reasons = [];
+  // Guard against overtraining / poor sleep — pull intensity down a notch.
+  if (level >= 3 && streak >= 3) { level--; reasons.push(streak+' träningsdagar i rad'); }
+  if (level >= 2 && sleep != null && sleep < 60) { level--; reasons.push('låg sömnpoäng ('+sleep+')'); }
+
+  var presets = {
+    4:{ emoji:'🔥', title:'Toppform – kör hårt', color:'var(--green)', bg:'var(--green-bg)',
+        body:'Din kropp är redo. Passa på att köra ett tufft pass med hög intensitet.',
+        suggest:['hiit','strength','run'] },
+    3:{ emoji:'💪', title:'Bra dag för träning', color:'var(--blue)', bg:'var(--blue-bg)',
+        body:'Solid återhämtning. Ett måttligt till intensivt pass passar bra idag.',
+        suggest:['run','strength','bike'] },
+    2:{ emoji:'🚶', title:'Ta det lugnt idag', color:'var(--amber)', bg:'var(--amber-bg)',
+        body:'Återhämtningen är måttlig. Håll det lätt – rörelse hjälper utan att tära.',
+        suggest:['walk','yoga','mobility'] },
+    1:{ emoji:'😴', title:'Fokus på vila', color:'var(--red)', bg:'var(--red-bg)',
+        body:'Kroppen behöver återhämta sig. Prioritera vila eller mycket lätt rörelse.',
+        suggest:['rest','mobility','walk'] },
+  };
+  var p = presets[level] || presets[2];
+  var chips = [];
+  if (readiness != null) chips.push('Återhämtning ' + readiness);
+  if (sleep != null) chips.push('Sömn ' + sleep);
+  if (reasons.length) chips.push('Justerat: ' + reasons.join(', '));
+  return { level:level, emoji:p.emoji, title:p.title, body:p.body, color:p.color, bg:p.bg, suggest:p.suggest, chips:chips };
+}
+
+// Find the first free ≥60 min slot today between 06:00–22:00 (timed events only)
+function findFreeSlot() {
+  var DAY_START = 6*60, DAY_END = 22*60, MIN = 60;
+  var now = new Date();
+  var nowMin = (now.toISOString().split('T')[0] === todayStr)
+    ? now.getHours()*60 + now.getMinutes() : 0;
+  var floor = Math.max(DAY_START, nowMin);
+  var busy = state.calEvents
+    .filter(function(e){ return e.date===todayStr && !e.allDay && e.start; })
+    .map(function(e){
+      var toMin = function(t){ var p=(t||'').split(':'); return (+p[0])*60 + (+p[1]||0); };
+      return { s: toMin(e.start), e: e.end ? toMin(e.end) : toMin(e.start)+60 };
+    })
+    .sort(function(a,b){ return a.s - b.s; });
+
+  var cursor = floor;
+  for (var i=0; i<busy.length; i++) {
+    if (busy[i].s - cursor >= MIN) break;
+    cursor = Math.max(cursor, busy[i].e);
+  }
+  if (cursor + MIN > DAY_END) return null;
+  var fmt = function(m){ return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); };
+  return { start: fmt(cursor), end: fmt(Math.min(cursor+90, DAY_END)) };
+}
+
+// Detect training-related events already in the calendar
+var WORKOUT_KW = ['gym','trän','löp','spring','pass','yoga','cykl','simn','padel','tennis','fotboll','crossfit','styrk','promenad','vandr','workout','run','ride','klätt','boxn'];
+function detectCalWorkouts() {
+  return state.calEvents.filter(function(e){
+    var t = e.title.toLowerCase();
+    return WORKOUT_KW.some(function(k){ return t.indexOf(k) >= 0; });
+  });
+}
+
+function renderTrainingReco(elId, compact) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  var plan = trainingPlan();
+  // On the overview, only show the smart card once Oura data exists.
+  if (compact && plan.level === 0) { el.innerHTML=''; return; }
+
+  var html = '<div class="reco-card" style="background:'+plan.bg+'">';
+  html += '<div class="reco-top">';
+  html += '<div class="reco-emoji">'+plan.emoji+'</div>';
+  html += '<div class="reco-head"><div class="reco-kicker" style="color:'+plan.color+'">Dagens rekommendation</div>';
+  html += '<div class="reco-title" style="color:'+plan.color+'">'+plan.title+'</div></div></div>';
+  html += '<div class="reco-body">'+plan.body+'</div>';
+
+  if (plan.chips.length) {
+    html += '<div class="reco-meta">';
+    plan.chips.forEach(function(c){ html += '<div class="reco-chip">'+c+'</div>'; });
+    html += '</div>';
+  }
+
+  // Connect to calendar: suggest when to fit the workout in today.
+  if (state.icsUrl && plan.level >= 2) {
+    var slot = findFreeSlot();
+    if (slot) {
+      html += '<div class="reco-slot"><div class="reco-slot-icon">🕑</div><div class="reco-slot-txt">'+
+        'Ledig tid idag: <b>'+slot.start+'–'+slot.end+'</b><br>'+
+        '<span style="color:var(--text3)">Lucka i din kalender för ett pass</span></div></div>';
+    } else {
+      html += '<div class="reco-slot"><div class="reco-slot-icon">📅</div><div class="reco-slot-txt">'+
+        'Tight schema idag – leta efter en kortare lucka eller träna tidigt/sent.</div></div>';
+    }
+  }
+
+  if (!compact) {
+    html += '<div style="margin-top:14px"><div class="reco-kicker" style="color:'+plan.color+';margin-bottom:8px">Förslag på pass</div>';
+    html += '<div class="suggest-grid">';
+    plan.suggest.forEach(function(id){
+      var t = WORKOUT_TYPES[id];
+      html += '<button class="suggest" onclick="openLog(\''+id+'\')"><div class="suggest-emoji">'+t.emoji+'</div>'+
+        '<div class="suggest-name">'+t.name+'</div><div class="suggest-desc">Tryck för att logga</div></button>';
+    });
+    html += '</div></div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderTraining() {
+  var el = document.getElementById('training-content');
+  if (!el) return;
+  var html = '';
+
+  // 1. Recommendation (full)
+  html += '<div id="training-reco-full"></div>';
+
+  // 2. This week
+  html += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
+  html += '<div class="card-label" style="margin-bottom:0">Den här veckan</div>';
+  var weekCount = state.workouts.filter(function(w){ return w.type!=='rest' && w.date >= dayOffsetStr(-6); }).length;
+  html += '<div style="font-size:12px;font-weight:700;color:var(--green)">'+weekCount+' pass</div></div>';
+  html += '<div class="week-strip">';
+  for (var i=6; i>=0; i--) {
+    var ds = dayOffsetStr(-i);
+    var w = state.workouts.filter(function(x){ return x.date===ds && x.type!=='rest'; })[0];
+    var d = new Date(ds+'T12:00:00');
+    var dn = d.toLocaleDateString('sv-SE',{weekday:'short'}).slice(0,2);
+    var cls = 'week-dot' + (w?' done':'') + (ds===todayStr?' today':'');
+    html += '<div class="week-day"><div class="'+cls+'">'+(w?WORKOUT_TYPES[w.type].emoji:'')+'</div><div class="week-dname">'+dn+'</div></div>';
+  }
+  html += '</div>';
+  html += '<button class="sheet-save" style="margin-top:16px;margin-bottom:0" onclick="openLog()">+ Logga pass</button>';
+  html += '</div>';
+
+  // 3. Workouts already in the calendar
+  if (state.icsUrl) {
+    var cw = detectCalWorkouts();
+    if (cw.length) {
+      html += '<div class="card"><div class="card-label">Träning i kalendern</div>';
+      cw.slice(0,6).forEach(function(e,i){
+        var d = new Date(e.date+'T12:00:00');
+        var when = e.date===todayStr ? 'Idag' : d.toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short'});
+        html += '<div class="log-row"><div class="log-emoji">📌</div><div class="log-main">'+
+          '<div class="log-name">'+e.title+'</div>'+
+          '<div class="log-sub">'+when+(e.allDay?'':' · '+e.start)+'</div></div></div>';
+      });
+      html += '</div>';
+    }
+  }
+
+  // 4. Logged workouts
+  html += '<div class="card"><div class="card-label">Loggade pass</div>';
+  var logs = state.workouts.slice().sort(function(a,b){ return (b.date+b.ts).localeCompare(a.date+a.ts); }).slice(0,12);
+  if (!logs.length) {
+    html += '<div class="no-data">Inga loggade pass än.<br>Tryck "Logga pass" för att börja.</div>';
+  } else {
+    logs.forEach(function(w){
+      var t = WORKOUT_TYPES[w.type] || WORKOUT_TYPES.other;
+      var d = new Date(w.date+'T12:00:00');
+      var when = w.date===todayStr ? 'Idag' : w.date===dayOffsetStr(-1) ? 'Igår'
+        : d.toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short'});
+      var feel = w.feel ? (FEELS.filter(function(f){return f.id===w.feel;})[0]||{}).label : '';
+      var sub = [when, w.dur?w.dur+' min':'', feel, w.note||''].filter(Boolean).join(' · ');
+      html += '<div class="log-row"><div class="log-emoji">'+t.emoji+'</div>'+
+        '<div class="log-main"><div class="log-name">'+t.name+'</div><div class="log-sub">'+sub+'</div></div>'+
+        '<button class="log-del" onclick="deleteWorkout(\''+w.id+'\')">✕</button></div>';
+    });
+  }
+  html += '</div>';
+
+  el.innerHTML = html;
+  renderTrainingReco('training-reco-full', false);
+}
+
+// ── Workout logging ───────────────────────────────────────────────────────────
+var logDraft = { type:'run', dur:45, feel:'good' };
+
+function openLog(presetType) {
+  logDraft = { type: presetType || 'run', dur:45, feel:'good' };
+  document.getElementById('log-note').value = '';
+  renderLogChips();
+  document.getElementById('log-overlay').classList.add('open');
+}
+function renderLogChips() {
+  document.getElementById('log-types').innerHTML = Object.keys(WORKOUT_TYPES).map(function(id){
+    var t = WORKOUT_TYPES[id];
+    return '<button class="chip-opt'+(logDraft.type===id?' sel':'')+'" onclick="pickType(\''+id+'\')">'+t.emoji+' '+t.name+'</button>';
+  }).join('');
+  document.getElementById('log-durations').innerHTML = DURATIONS.map(function(d){
+    return '<button class="chip-opt'+(logDraft.dur===d?' sel':'')+'" onclick="pickDur('+d+')">'+d+' min</button>';
+  }).join('');
+  document.getElementById('log-feels').innerHTML = FEELS.map(function(f){
+    return '<button class="chip-opt'+(logDraft.feel===f.id?' sel':'')+'" onclick="pickFeel(\''+f.id+'\')">'+f.label+'</button>';
+  }).join('');
+}
+function pickType(id){ logDraft.type=id; renderLogChips(); }
+function pickDur(d){ logDraft.dur=d; renderLogChips(); }
+function pickFeel(f){ logDraft.feel=f; renderLogChips(); }
+function closeLog(){ document.getElementById('log-overlay').classList.remove('open'); }
+function maybeCloseLog(e){ if (e.target === document.getElementById('log-overlay')) closeLog(); }
+
+function confirmLog() {
+  state.workouts.push({
+    id: 'w' + Date.now() + Math.random().toString(36).slice(2,6),
+    ts: new Date().toISOString(),
+    date: todayStr,
+    type: logDraft.type,
+    dur: logDraft.dur,
+    feel: logDraft.feel,
+    note: document.getElementById('log-note').value.trim(),
+  });
+  saveWorkouts();
+  closeLog();
+  render();
+}
+function deleteWorkout(id) {
+  state.workouts = state.workouts.filter(function(w){ return w.id !== id; });
+  saveWorkouts();
+  render();
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────────
